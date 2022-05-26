@@ -41,7 +41,7 @@ class Commands extends Command {
         $this->main = $main;
         $desc = (empty($desc)) ? "Buy and sell your tags using money" : $desc;
 
-        parent::__construct("tagsshop", $main);
+        parent::__construct("tagsshop");
         $this->setPermission("kygektagsshop.tags");
         $this->setAliases($aliases);
         $this->setUsage("/tagsshop");
