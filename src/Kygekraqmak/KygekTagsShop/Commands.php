@@ -28,11 +28,11 @@ declare(strict_types=1);
 namespace Kygekraqmak\KygekTagsShop;
 
 use Kygekraqmak\KygekTagsShop\form\MenuForm;
-use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
+use pocketmine\command\PluginCommand;
 use pocketmine\player\Player;
 
-class Commands extends Command {
+class Commands extends PluginCommand {
 
     /** @var TagsShop */
     private $main;
@@ -41,7 +41,7 @@ class Commands extends Command {
         $this->main = $main;
         $desc = (empty($desc)) ? "Buy and sell your tags using money" : $desc;
 
-        parent::__construct("tagsshop");
+        parent::__construct("tagsshop", $main);
         $this->setPermission("kygektagsshop.tags");
         $this->setAliases($aliases);
         $this->setUsage("/tagsshop");
