@@ -28,11 +28,11 @@ declare(strict_types=1);
 namespace Kygekraqmak\KygekTagsShop;
 
 use Kygekraqmak\KygekTagsShop\form\MenuForm;
+use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
-use pocketmine\command\PluginCommand;
 use pocketmine\player\Player;
 
-class Commands extends PluginCommand {
+class Commands extends Command {
 
     /** @var TagsShop */
     private $main;
