@@ -129,7 +129,7 @@ class TagsShop extends PluginBase implements Listener {
         $this->getServer()->getCommandMap()->register("KygekTagsShop", new Commands($this, $cmddesc, $cmdalias));
         self::$api = new TagsActions($this, $this->config, $this->data, $this->economyEnabled, $this->economyAPI);
         
-        KtpmplCfs::checkUpdates($this);
+        (new KtpmplCfs($this))->checkUpdates();
     }
 
     private function initializeLangs() {
