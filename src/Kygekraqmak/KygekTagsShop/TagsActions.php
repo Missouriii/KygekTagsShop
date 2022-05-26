@@ -27,10 +27,9 @@ declare(strict_types=1);
 
 namespace Kygekraqmak\KygekTagsShop;
 
-use cooldogedev\BedrockEconomy\api\BedrockEconomyAPI;
-use cooldogedev\BedrockEconomy\libs\cooldogedev\libSQL\context\ClosureContext;
 use Kygekraqmak\KygekTagsShop\event\TagBuyEvent;
 use Kygekraqmak\KygekTagsShop\event\TagSellEvent;
+use onebone\economyapi\EconomyAPI;
 use pocketmine\player\Player;
 use pocketmine\utils\Config;
 
@@ -53,12 +52,15 @@ class TagsActions {
 
     /** @var bool */
     private $economyEnabled;
+    /** @var EconomyAPI|null */
+    private $economyAPI;
 
-    public function __construct(TagsShop $plugin, array $config, Config $data, bool $economyEnabled) {
+    public function __construct(TagsShop $plugin, array $config, Config $data, bool $economyEnabled, ?EconomyAPI $economyAPI) {
         $this->plugin = $plugin;
         $this->config = $config;
         $this->data = $data;
-        $this->economyEnabled = $economyEnabled;;
+        $this->economyEnabled = $economyEnabled;
+        $this->economyAPI = $economyAPI;
     }
 
     /**
