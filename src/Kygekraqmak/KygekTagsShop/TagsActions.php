@@ -134,7 +134,7 @@ class TagsActions {
      * @return bool
      */
     public function playerHasTag(Player $player) : bool {
-        return isset($this->getAllData()[strtolower($player->getName())]);
+        return isset($this->getAllData()[$player->getLowercaseName()]);
     }
 
 
@@ -170,12 +170,13 @@ class TagsActions {
 
         if ($this->economyEnabled) {
             $tagprice = $this->getTagPrice($this->getPlayerTag($player));
+            $currency = $this->economyAPI->getMonetaryUnit();
             (new TagSellEvent($player, $tagid))->call();
-            BedrockEconomyAPI::getInstance()->addToPlayerBalance($player->getName(), $tagprice);
+            $this->economyAPI->addMoney($player, $tagprice);
             $this->removeData($player);
             // TODO: Set player display name to original display name after new database has been implemented
             $player->setDisplayName($player->getName());
-            $player->sendMessage(str_replace("{price}", "$" . $tagprice, $this->plugin->messages["kygektagsshop.info.economyselltagsuccess"]));
+            $player->sendMessage(str_replace("{price}", $currency . $tagprice, $this->plugin->messages["kygektagsshop.info.economyselltagsuccess"]));
             return;
         }
 
@@ -202,24 +203,24 @@ class TagsActions {
         }
 
         if ($this->economyEnabled) {
-            BedrockEconomyAPI::getInstance()->getPlayerBalance($player->getName(), ClosureContext::create(function(?int $balance) use ($tagid, $player): void {
-                $tagprice = $this->getTagPrice($tagid);
-                $money = "$" . ($tagprice - $balance);
+            $playermoney = $this->economyAPI->myMoney($player);
+            $tagprice = $this->getTagPrice($tagid);
+            $currency = $this->economyAPI->getMonetaryUnit();
+            $money = $currency . ($tagprice - $playermoney);
 
-                if ($balance < $tagprice) {
-                    $player->sendMessage(str_replace("{price}", $money, $this->plugin->messages["kygektagsshop.warning.notenoughmoney"]));
-                    return;
-                }
+            if ($playermoney < $tagprice) {
+                $player->sendMessage(str_replace("{price}", $money, $this->plugin->messages["kygektagsshop.warning.notenoughmoney"]));
+                return;
+            }
 
-                (new TagBuyEvent($player, $tagid))->call();
-                $this->setData($player, $tagid);
-                BedrockEconomyAPI::getInstance()->subtractFromPlayerBalance($player->getName(), $tagprice);
-                // TODO: Store original player display name in database after new database has been implemented (See line #178 for purpose)
-                $displayName = $player->getDisplayName();
-                $tag = $this->getTagName($tagid);
-                $player->setDisplayName(str_replace(["{displayname}", "{tag}"], [$displayName, $tag], $this->getDisplayNameFormat()));
-                $player->sendMessage(str_replace("{price}", "$" . $tagprice, $this->plugin->messages["kygektagsshop.info.economybuytagsuccess"]));
-            }));
+            (new TagBuyEvent($player, $tagid))->call();
+            $this->setData($player, $tagid);
+            $this->economyAPI->reduceMoney($player, $tagprice);
+            // TODO: Store original player display name in database after new database has been implemented (See line #178 for purpose)
+            $displayName = $player->getDisplayName();
+            $tag = $this->getTagName($tagid);
+            $player->setDisplayName(str_replace(["{displayname}", "{tag}"], [$displayName, $tag], $this->getDisplayNameFormat()));
+            $player->sendMessage(str_replace("{price}", $currency . $tagprice, $this->plugin->messages["kygektagsshop.info.economybuytagsuccess"]));
             return;
         }
 
@@ -247,7 +248,7 @@ class TagsActions {
      * @return int
      */
     private function getData(Player $player) : int {
-        return $this->data->get(strtolower($player->getName()));
+        return $this->data->get($player->getLowercaseName());
     }
 
 
@@ -258,7 +259,7 @@ class TagsActions {
      * @param int $tagid
      */
     private function setData(Player $player, int $tagid) {
-        $this->data->set(strtolower($player->getName()), $tagid);
+        $this->data->set($player->getLowercaseName(), $tagid);
         $this->saveData();
         $this->reloadData();
     }
