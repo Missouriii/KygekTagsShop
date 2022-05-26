@@ -134,7 +134,7 @@ class TagsActions {
      * @return bool
      */
     public function playerHasTag(Player $player) : bool {
-        return isset($this->getAllData()[$player->getLowercaseName()]);
+        return isset($this->getAllData()[strtolower($player->getName())]);
     }
 
 
@@ -248,7 +248,7 @@ class TagsActions {
      * @return int
      */
     private function getData(Player $player) : int {
-        return $this->data->get($player->getLowercaseName());
+        return $this->data->get(strtolower($player->getName()));
     }
 
 
@@ -259,7 +259,7 @@ class TagsActions {
      * @param int $tagid
      */
     private function setData(Player $player, int $tagid) {
-        $this->data->set($player->getLowercaseName(), $tagid);
+        $this->data->set(strtolower($player->getName()), $tagid);
         $this->saveData();
         $this->reloadData();
     }
