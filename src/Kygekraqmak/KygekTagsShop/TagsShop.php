@@ -27,8 +27,9 @@ declare(strict_types=1);
 
 namespace Kygekraqmak\KygekTagsShop;
 
-use cooldogedev\BedrockEconomy\BedrockEconomy;
+
 use KygekTeam\KtpmplCfs\KtpmplCfs;
+use onebone\economyapi\EconomyAPI;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\plugin\PluginBase;
@@ -50,6 +51,9 @@ class TagsShop extends PluginBase implements Listener {
 
     /** @var bool */
     public $economyEnabled = false;
+    
+        /** @var EconomyAPI|null */
+    public $economyAPI = null;
 
     /** @var TagsActions */
     private static $api;
@@ -103,13 +107,14 @@ class TagsShop extends PluginBase implements Listener {
 
         $this->initializeLangs();
         $this->checkConfig();
-
-        if (!class_exists(BedrockEconomy::class)) {
+        
+        if (!class_exists(EconomyAPI::class)) {
             if ($this->config["notify-no-economyapi"] === true) {
                 $this->getLogger()->notice($this->messages["kygektagsshop.notice.noeconomyapi"]);
             }
         } else {
             $this->economyEnabled = true;
+            $this->economyAPI = EconomyAPI::getInstance();
         }
 
         if (empty($this->config["tags"])) {
@@ -122,9 +127,9 @@ class TagsShop extends PluginBase implements Listener {
         $cmdalias = $this->config["command-aliases"];
         $this->getServer()->getPluginManager()->registerEvents($this, $this);
         $this->getServer()->getCommandMap()->register("KygekTagsShop", new Commands($this, $cmddesc, $cmdalias));
-        self::$api = new TagsActions($this, $this->config, $this->data, $this->economyEnabled);
-
-        (new KtpmplCfs($this))->checkUpdates();
+        self::$api = new TagsActions($this, $this->config, $this->data, $this->economyEnabled, $this->economyAPI);
+        
+        KtpmplCfs::checkUpdates($this);
     }
 
     private function initializeLangs() {
